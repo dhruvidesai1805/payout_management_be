@@ -1,41 +1,60 @@
-# Payout Management MVP — Backend
+# PayFlow — Backend API
 
-Node.js + Express backend for the Payout Management system.
+Node.js + Express + MongoDB REST API for the Payout Management system.
 
 ## Tech Stack
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- JWT Authentication
+- Node.js + Express 4
+- MongoDB Atlas (Mongoose)
+- JWT Authentication (8h expiry)
+- bcryptjs password hashing
 
-## Setup
+## Quick Start (under 5 minutes)
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Install dependencies
+npm install
 
-2. Create `.env` file from the template:
-   ```bash
-   cp .env.example .env
-   ```
+# 2. Configure environment (.env already included)
+# PORT=5000, MONGO_URI, JWT_SECRET are set
 
-3. Update `.env` with your MongoDB Atlas URI and JWT secret.
+# 3. Seed users into MongoDB
+npm run seed
 
-4. Seed the database:
-   ```bash
-   npm run seed
-   ```
+# 4. Start development server
+npm run dev
+```
 
-5. Run the development server:
-   ```bash
-   npm run dev
-   ```
+Server runs on `http://localhost:5000`
 
-The server will start on `http://localhost:5000`.
+## API Endpoints
 
-## Seeded Users
-| Email              | Password | Role    |
-|--------------------|----------|---------|
-| ops@demo.com       | ops123   | OPS     |
-| finance@demo.com   | fin123   | FINANCE |
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| POST | /api/auth/login | Any | Get JWT token |
+| GET | /api/vendors | OPS | List vendors |
+| POST | /api/vendors | OPS | Create vendor |
+| GET | /api/payouts | OPS, FINANCE | List payouts (filters: status, vendor_id) |
+| POST | /api/payouts | OPS | Create draft payout |
+| GET | /api/payouts/:id | OPS, FINANCE | Payout detail |
+| GET | /api/payouts/:id/audit | OPS, FINANCE | Audit trail |
+| POST | /api/payouts/:id/submit | OPS | Draft → Submitted |
+| POST | /api/payouts/:id/approve | FINANCE | Submitted → Approved |
+| POST | /api/payouts/:id/reject | FINANCE | Submitted → Rejected (reason required) |
+
+
+## Project Structure
+```
+├── models/
+│   ├── User.js
+│   ├── Vendor.js
+│   ├── Payout.js
+│   └── PayoutAudit.js
+├── routes/
+│   ├── auth.js
+│   ├── vendors.js
+│   └── payouts.js
+├── middleware/
+│   └── auth.js        # JWT verify + role guard
+├── server.js
+└── seed.js
+```
